@@ -6,11 +6,11 @@ onload = () => {
 
     form.addEventListener('change', () => {
         const select = doc.querySelectorAll('select');
-        const productDate = getValue(select[0].value, sourceData, 'product');
-        const regionDate = getValue(select[1].value, sourceData, 'region');
-        const date = merge(regionDate, productDate);
-        dateEmpty();
-        setTable(date);
+        const productData = getValue(select[0].value, sourceData, 'product');
+        const regionData = getValue(select[1].value, sourceData, 'region');
+        const data = merge(regionData, productData);
+        dataEmpty();
+        setTable(data);
     }); 
     */
 
@@ -25,20 +25,40 @@ onload = () => {
             selectAll(ele);
         }
         const productStr = buttonGetValue('product');
-        let productDate = [];
+        let productData = [];
         for (const str of productStr) {
             const arr = getValue(str, sourceData, 'product');
-            productDate = productDate.concat(arr);
+            productData = productData.concat(arr);
         }
         const regionStr = buttonGetValue('region');
-        let regionDate = [];
+        let regionData = [];
         for (const str of regionStr) {
             const arr = getValue(str, sourceData, 'region');
-            regionDate = regionDate.concat(arr);
+            regionData = regionData.concat(arr);
         }
-        const date = merge(regionDate, productDate);
-        dateEmpty();
-        setTable(date, productStr.length, regionStr.length);
+        const data = merge(regionData, productData);
+        if (data.length !== 0) {
+            paintSvg(data[0].sale);    //svg绘制柱状图，只针对华东手机销量
+            paintCanvas(data[0].sale);    //canvas绘制折线图，只针对华东手机销量
+        }
+        dataEmpty();
+        setTable(data, productStr.length, regionStr.length);
+        /* if (data.length > 0) {
+            const tbody = doc.querySelector('tbody');
+            // console.log(tbody);
+            // tbody.addEventListener('click',(e) => {
+            //     console.log(e.target.parentNode);
+            // });
+            const tr = tbody.getElementsByTagName('tr');
+            for (let i = 0; i < tr.length; i++) {
+                tr[i].x = tr.length-1;
+                tr[i].addEventListener('click', (e) => {
+                    console.log(data);
+                    paintSvg(data[i].sale);    //svg绘制柱状图，只针对华东手机销量
+                    paintCanvas(data[i].sale);    //canvas绘制折线图，只针对华东手机销量
+                });
+            }
+        } */
     });
 }
 /*
@@ -46,7 +66,7 @@ onload = () => {
     获取节点元素value。
     再匹配数据，即可获取数据
 */
-function getValue(value, dates, name) {
+function getValue(value, datas, name) {
     let arr = [];
     let str = '';
     if (name === 'region') {
@@ -61,7 +81,7 @@ function getValue(value, dates, name) {
                 str = '华北';
                 break;
             default:
-                arr = dates;
+                arr = datas;
                 return arr;
         }
     } else if (name === 'product') {
@@ -76,13 +96,13 @@ function getValue(value, dates, name) {
                 str = '智能音箱';
                 break;
             default:
-                arr = dates;
+                arr = datas;
                 return arr;
         }
     }
-    for (const date of dates) {
-        if (date[name] === str) {
-            arr.push(date);
+    for (const data of datas) {
+        if (data[name] === str) {
+            arr.push(data);
         }
     }
     return arr;
@@ -90,38 +110,36 @@ function getValue(value, dates, name) {
 /* 
     生成表格
 */
-function setTable(dates, pLength, rLength) {
+function setTable(datas, pLength, rLength) {
     const doc = document;
-    const table = doc.querySelector('table');
+    const tbody = doc.querySelector('tbody');
     const f = doc.createDocumentFragment();
-    for (let i = dates.length - 1; i >= 0; i--) {
+    for (let i = datas.length - 1; i >= 0; i--) {
         const tr = doc.createElement('tr');
-        let oneDate = dates[i];
-        for (const key in oneDate) {
-            if (!(Array.isArray(oneDate[key]))) {
+        let oneData = datas[i];
+        for (const key in oneData) {
+            if (!(Array.isArray(oneData[key]))) {
                 const td = doc.createElement('td');
                 if (pLength > rLength) {
-                    td.innerHTML = oneDate[key];
+                    td.innerHTML = oneData[key];
                     if (key === 'region') {
                         tr.insertBefore(td, tr.childNodes[0]);
                     } else {
                         tr.appendChild(td);
                     }
                 } else {
-                    td.innerHTML = oneDate[key];
+                    td.innerHTML = oneData[key];
                     tr.appendChild(td);
                 }
             } else {
-                for (const date of oneDate[key]) {
+                for (const data of oneData[key]) {
                     const td = doc.createElement('td');
-                    td.innerHTML = date;
+                    td.innerHTML = data;
                     tr.appendChild(td);
                 }
             }
         }
         f.appendChild(tr);
-        // console.log(tr);
-        // position(tr,table);
     }
     const th = doc.querySelectorAll('th');
     if (pLength > rLength) {
@@ -131,17 +149,17 @@ function setTable(dates, pLength, rLength) {
         th[1].innerHTML = '地区';
         th[0].innerHTML = '商品';
     }
-    table.appendChild(f);
+    tbody.appendChild(f);
 }
 /* 
     合并数组
 */
-function merge(dates1, dates2) {
+function merge(datas1, datas2) {
     let arr = [];
-    for (const date1 of dates1) {
-        for (const date2 of dates2) {
-            if (date1 === date2) {
-                arr.push(date1);
+    for (const data1 of datas1) {
+        for (const data2 of datas2) {
+            if (data1 === data2) {
+                arr.push(data1);
             }
         }
     }
@@ -150,7 +168,7 @@ function merge(dates1, dates2) {
 /* 
 清空表格数据
 */
-function dateEmpty() {
+function dataEmpty() {
     const tr = document.querySelectorAll('tr');
     for (let i = tr.length - 1; i > 0; i--) {
         tr[i].remove();
@@ -209,26 +227,19 @@ function buttonGetValue(name) {
     return i = [...i];
 
 }
-function position(tr, table) {
-    const trs = document.getElementsByTagName('tr');
-    // console.log(1);
-    // let x = 0;
-    // let y = null;
-    if (trs.length > 1) {
-        for (let i = 0; i < trs.length; i++) {
-            if (i===0) {
-                continue;
-            }
-            console.log(2,trs[i]);
-            // if (tr.childNodes[0].innerHTML === trs[i].childNodes[0].innerHTML) {
-                table.insertBefore(tr,trs[i]);
-                // ++x;
-            // } else {
-            //     table.appendChild(tr);
-            // }
-        }
+/* function position(tr,tbody) {
+    const doc = document;
+    console.log(tbody.childNodes.length);
+    const len = tbody.childNodes.length;
+    if (len <= 1){
+        tbody.appendChild(tr);
     } else {
-        console.log(1,tr);
-        table.appendChild(tr);
+        const str = tr.childNodes[0].innerHTML;
+        for (const ttr of tbody.childNodes) {
+            if (ttr.childNodes[0].innerHTML === str) {
+                console.log(ttr.childNodes[0].innerHTML === str);
+                tbody.insertBefore(tr,ttr);
+            }
+        }
     }
-}
+} */

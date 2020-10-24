@@ -48,25 +48,44 @@
         <input type="checkbox" name="region" value="2">华南
         <input type="checkbox" name="region" value="3">华北
     </form>
-            <table>
-                <tr>
-                    <th>商品</th>
-                    <th>地区</th>
-                    <th>一月</th>
-                    <th>二月</th>
-                    <th>三月</th>
-                    <th>四月</th>
-                    <th>五月</th>
-                    <th>六月</th>
-                    <th>七月</th>
-                    <th>八月</th>
-                    <th>九月</th>
-                    <th>十月</th>
-                    <th>十一月</th>
-                    <th>十二月</th>
-                </tr>
-            </table>
+    <table>
+        <thead>
+            <tr>
+                <th>商品</th>
+                <th>地区</th>
+                <th>一月</th>
+                <th>二月</th>
+                <th>三月</th>
+                <th>四月</th>
+                <th>五月</th>
+                <th>六月</th>
+                <th>七月</th>
+                <th>八月</th>
+                <th>九月</th>
+                <th>十月</th>
+                <th>十一月</th>
+                <th>十二月</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <svg id="svg">
+        <g stroke="black" stroke-width="2">
+            
+            <line x1='50' y1='550' x2='750' y2='550'></line>
+            <line x1='740' y1='540' x2='750' y2='550'></line>
+            <line x1='740' y1='560' x2='750' y2='550'></line>
+            
+            <line x1='50' y1='50' x2='50' y2='550'></line>
+            <line x1='50' y1='50' x2='40' y2='60'></line>
+            <line x1='50' y1='50' x2='60' y2='60'></line>
+        </g>
+    </svg>
+    <canvas id="canvas">
+    </canvas>
+    <script src="./js/line.js"></script>
     <script src="./js/ife31data.js"></script>
+    <script src="./js/bar.js"></script>
     <script src="./js/index.js"></script>
 </body>
 
